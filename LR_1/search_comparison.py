@@ -135,3 +135,12 @@ def plot_results(sizes, results_linear, results_binary):
 
 plot_results(sizes, results_linear, results_binary)
 
+# Характеристики вычислительной машины
+pc_info = """
+Характеристики ПК для тестирования:
+- Процессор: Intel Core i5-12500H @ 2.50GHz
+- Оперативная память: 32 GB DDR4
+- ОС: Windows 11
+- Python: 3.12
+"""
+print(pc_info)

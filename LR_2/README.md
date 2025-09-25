@@ -210,6 +210,16 @@ plt.title("Тест времени реализации очереди")
 plt.legend(loc="upper left", title="Collections")
 plt.show()
 
+
+#Характеристики вычислительной машины
+pc_info = """
+Характеристики ПК для тестирования:
+- Процессор: Intel Core i5-12500H @ 2.50GHz
+- Оперативная память: 32 GB DDR4
+- ОС: Windows 11
+- Python: 3.12
+"""
+print(pc_info)
 print(f"{list_measure} - list \n {linked_list_measure} -linked_list \n"
       f"{list_queue_measures} - list \n {deque_measures} - deque")
 

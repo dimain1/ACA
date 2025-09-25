@@ -14,12 +14,14 @@
 
 ```PYTHON
 # Программирование на языке высокого уровня (Python).
-# Задание № 01. Вариант 11
+# Задание № 01_lab01. 
 # Выполнил: Черников Дмитрий Дмитриевич
 # Группа: ПИЖ-б-о-23-2(1)
 # E-mail: dima.chernikov.053@mail.ru
 
 # search_comparison.py
+
+
 
 
 # Импорт необходимых библиотек
@@ -67,25 +69,29 @@ def generate_test_data(sizes):
     """
     Генерирует отсортированные массивы заданных размеров и целевые элементы.
     Возвращает словарь: {size: {'array': [...], 'targets': {...}}}
-    Сложность: O(k*n), где k - количество размеров, n - размер массива.
     """
     data = {}
-    for size in sizes:                # O(k)
-        arr = list(range(size))       # O(n)
+    for size in sizes:
+        arr = list(range(size))
         targets = {
-            'first': arr[0],          # O(1)
-            'last': arr[-1],          # O(1)
-            'absent': -1              # O(1)
+            'first': arr[0],
+            'middle': arr[size // 2],
+            'last': arr[-1],
+            'absent': -1
         }
-        data[size] = {'array': arr, 'targets': targets}  # O(1)
-    return data                       # O(1)
-# Общая сложность: O(k*n)
+        data[size] = {'array': arr, 'targets': targets}
+    return data
 
 
 test_data = generate_test_data(sizes)
 
 
 def measure_time(search_func, arr, target, repeat=10):
+    """
+    Замеряет среднее время выполнения функции поиска по массиву.
+    Возвращает: float: Среднее время поиска (в миллисекундах)
+    за repeat запусков.
+    """
     times = []
     for _ in range(repeat):
         t = timeit.timeit(lambda: search_func(arr, target), number=1)
@@ -93,62 +99,75 @@ def measure_time(search_func, arr, target, repeat=10):
     return sum(times) / len(times)
 
 
-results = {
-    'linear_search': {},
-    'binary_search': {}
-}
+# Новый способ хранения:
+# для каждого алгоритма — словарь {size: [first, middle, last, absent]}
+element_keys = ['first', 'middle', 'last', 'absent']
+results_linear = {}
+results_binary = {}
 for size, info in test_data.items():
     arr = info['array']
     targets = info['targets']
-    results['linear_search'][size] = {}
-    results['binary_search'][size] = {}
-    for key, target in targets.items():
-        results['linear_search'][size][key] = measure_time(
-            linear_search, arr, target)
-        results['binary_search'][size][key] = measure_time(
-            binary_search, arr, target)
+    # Сохраняем времена в фиксированном порядке: [first, middle, last, absent]
+    results_linear[size] = [
+        measure_time(linear_search, arr, targets['first']),
+        measure_time(linear_search, arr, targets['middle']),
+        measure_time(linear_search, arr, targets['last']),
+        measure_time(linear_search, arr, targets['absent'])
+    ]
+    results_binary[size] = [
+        measure_time(binary_search, arr, targets['first']),
+        measure_time(binary_search, arr, targets['middle']),
+        measure_time(binary_search, arr, targets['last']),
+        measure_time(binary_search, arr, targets['absent'])
+    ]
 
 
-def plot_results(results, sizes):
-    plt.figure(figsize=(12, 6))
-    for alg in ['linear_search', 'binary_search']:
-        y = [results[alg][size]['last'] for size in sizes]
-        plt.plot(sizes, y, marker='o', label=alg)
+def plot_results(sizes, results_linear, results_binary):
+    """
+    Рисует графики в нормальном формате и в логарифмическом по оси y
+    В результате работы функции сохраняются два изображения в рабочую
+    директорию
+    """
+    y_linear = [results_linear[size][2] for size in sizes]  # last
+    y_binary = [results_binary[size][2] for size in sizes]  # last
+    plt.plot(sizes, y_linear, marker='o', label='linear_search')
+    plt.plot(sizes, y_binary, marker='o', label='binary_search')
     plt.xlabel('Размер массива')
     plt.ylabel('Время (мс)')
     plt.title('Время поиска (последний элемент)')
     plt.legend()
     plt.grid(True)
+    # plt.ticklabel_format(style='plain', axis='x')
+    plt.savefig('./time_complexity_plot.png',
+                dpi=300, bbox_inches='tight')
     plt.show()
 
-    plt.figure(figsize=(12, 6))
-    for alg in ['linear_search', 'binary_search']:
-        y = [results[alg][size]['last'] for size in sizes]
-        plt.plot(sizes, y, marker='o', label=alg)
+    # log scale
+    plt.plot(sizes, y_linear, marker='o', label='linear_search')
+    plt.plot(sizes, y_binary, marker='o', label='binary_search')
     plt.xlabel('Размер массива')
     plt.ylabel('Время (мс, log scale)')
     plt.yscale('log')
     plt.title('Время поиска (логарифмическая шкала, последний элемент)')
     plt.legend()
     plt.grid(True)
-    plt.show()
-
-    # График в log-log масштабе
-    plt.figure(figsize=(12, 6))
-    for alg in ['linear_search', 'binary_search']:
-        y = [results[alg][size]['last'] for size in sizes]
-        plt.plot(sizes, y, marker='o', label=alg)
-    plt.xlabel('Размер массива (log scale)')
-    plt.ylabel('Время (мс, log scale)')
-    plt.xscale('log')
-    plt.yscale('log')
-    plt.title('Время поиска (log-log scale, последний элемент)')
-    plt.legend()
-    plt.grid(True)
+    # plt.ticklabel_format(style='plain', axis='x')
+    plt.savefig('./time_complexity_plot_log.png',
+                dpi=300, bbox_inches='tight')
     plt.show()
 
 
-plot_results(results, sizes)
+plot_results(sizes, results_linear, results_binary)
+
+# Характеристики вычислительной машины
+pc_info = """
+Характеристики ПК для тестирования:
+- Процессор: Intel Core i5-12500H @ 2.50GHz
+- Оперативная память: 32 GB DDR4
+- ОС: Windows 11
+- Python: 3.12
+"""
+print(pc_info)
 
 ```
 
