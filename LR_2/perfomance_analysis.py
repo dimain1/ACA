@@ -1,0 +1,87 @@
+import timeit
+from linked_list import LinkedList
+from collections import deque
+import matplotlib.pyplot as plt
+
+
+def measure_list_realization(count):
+    # Тест времени вставки для списка
+    test_list = list()
+    start1 = timeit.default_timer()
+    for i in range(count):
+        test_list.insert(0, i)
+    end1 = timeit.default_timer()
+
+    # Тест времени вставки для связанного списка
+    test_linked_list = LinkedList()
+    start2 = timeit.default_timer()
+    for i in range(count):
+        test_linked_list.insert_at_start(i)
+    end2 = timeit.default_timer()
+    return ((end1 - start1) * 1000, (end2 - start2) * 1000)
+
+
+def measure_queue_realization(count):
+    # Тест списка для реализации очереди
+    test_list_queue = list()
+    for i in range(count):
+        test_list_queue.append(i)
+
+    start1 = timeit.default_timer()
+    for i in range(count):
+        test_list_queue.pop(0)
+    end1 = timeit.default_timer()
+
+    # Тест деки для реализации очереди
+    test_deque_queue = deque()
+    for i in range(count):
+        test_deque_queue.append(i)
+
+    start2 = timeit.default_timer()
+    for i in range(count):
+        test_deque_queue.popleft()
+    end2 = timeit.default_timer()
+    return ((end1 - start1) * 1000, (end2 - start2) * 1000)
+
+# Visualuzation block
+
+
+sizes = [100, 1000, 10000, 100000]
+list_measure = []
+linked_list_measure = []
+for size in sizes:
+    measures = measure_list_realization(size)
+    list_measure.append(measures[0])
+    linked_list_measure.append(measures[1])
+
+plt.plot(sizes, list_measure, marker="o", color="red", label="list")
+plt.plot(sizes, linked_list_measure, marker="o",
+         color="green", label="linked_list")
+plt.xlabel("Количество элементов N")
+plt.ylabel("Время выполнения ms")
+plt.title("Тест времени вставки для списка")
+plt.legend(loc="upper left", title="Collections")
+plt.savefig('./time_complexity_plot_list.png',
+            dpi=300, bbox_inches='tight')
+plt.show()
+
+list_queue_measures = []
+deque_measures = []
+for size in sizes:
+    measures = measure_list_realization(size)
+    list_queue_measures.append(measures[0])
+    deque_measures.append(measures[1])
+
+plt.plot(sizes, list_queue_measures, marker="o", color="red", label="list")
+plt.plot(sizes, deque_measures, marker="o",
+         color="green", label="deque")
+plt.xlabel("Количество элементов N")
+plt.ylabel("Время выполнения ms")
+plt.title("Тест времени реализации очереди")
+plt.legend(loc="upper left", title="Collections")
+plt.savefig('./time_complexity_plot_queue.png',
+            dpi=300, bbox_inches='tight')
+plt.show()
+
+print(f"{list_measure} - list \n {linked_list_measure} -linked_list \n"
+      f"{list_queue_measures} - list \n {deque_measures} - deque")
